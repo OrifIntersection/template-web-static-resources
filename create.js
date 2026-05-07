@@ -35,6 +35,7 @@ const html = `<!DOCTYPE html>
 <html>
     <head>
         <meta charset="UTF-8"/>
+        <title>Frontend Static</title>
     </head>
     <body>
         <script type="module" src="build.js"></script>
@@ -46,8 +47,6 @@ const helloWorld = document.createTextNode("Hello World!");
 
 header.appendChild(helloWorld);
 document.body.appendChild(header);
-
-console.log("hello world!");
 `;
 
 const dependencies = [];
