@@ -43,7 +43,7 @@ const html = `<!DOCTYPE html>
 </html>`;
 
 const js = `const header = document.createElement("h1");
-const helloWorld = document.createTextNode("Hello World! TESTING");
+const helloWorld = document.createTextNode("Hello World!");
 
 header.appendChild(helloWorld);
 document.body.appendChild(header);
