@@ -19,11 +19,6 @@ jobs:
       id: generate
       run: node ~/scripts/generate-host.js "${{ github.event.repository.name }}"
 
-    - name: Enable sites and reload Apache
-      run: |
-        a2ensite *.conf
-        apachectl restart
-
     - name: Build and run container
       env:
         NAME: "${{ steps.generate.outputs.name }}"
@@ -39,6 +34,11 @@ jobs:
           -p "127.0.0.1:${PORT}:80" \
           --restart unless-stopped \
           "${NAME}-image:latest"
+
+    - name: Enable sites and reload Apache
+      run: |
+        a2ensite *.conf
+        apachectl restart
 
     - name: Update repo homepage
       id: update-homepage
