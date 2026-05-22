@@ -10,7 +10,8 @@ WORKDIR /app/frontend
 
 # Install dependencies (including esbuild)
 # 'npm ci' requires package-lock.json
-RUN npm ci
+# But it would ensure all dependencies have their correct versions
+RUN npm i
 
 COPY frontend/ .
 
