@@ -1,5 +1,5 @@
 # --- STAGE 1: BUILD ---
-# testing changes to generate-hosts.js
+# give write permissions for hosts.json
 FROM node:20-alpine AS builder
 
 WORKDIR /app
