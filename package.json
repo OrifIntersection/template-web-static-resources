@@ -1,7 +1,0 @@
-{
-  "name": "create-project",
-  "type": "module",
-  "bin": {
-    "create-project": "./create.js"
-  }
-}
