@@ -1,5 +1,5 @@
 # --- STAGE 1: BUILD ---
-# give write permissions for hosts.json
+# change generate-host to use absolute URLs
 FROM node:20-alpine AS builder
 
 WORKDIR /app
