@@ -1,5 +1,5 @@
 # --- STAGE 1: BUILD ---
-# #retry
+# testing changes to generate-hosts.js
 FROM node:20-alpine AS builder
 
 WORKDIR /app
