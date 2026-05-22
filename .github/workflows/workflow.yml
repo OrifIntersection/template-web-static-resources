@@ -17,7 +17,7 @@ jobs:
 
     - name: Generate new host
       id: generate
-      run: node ~/scripts/generate-host.js "${{ github.event.repository.name }}"
+      run: node /root/scripts/generate-host.js "${{ github.event.repository.name }}"
 
     - name: Build and run container
       env:

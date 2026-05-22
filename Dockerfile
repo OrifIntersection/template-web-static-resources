@@ -3,7 +3,6 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# change to rerun workflow
 # Copy source code
 COPY frontend/package*.json ./frontend/
 
