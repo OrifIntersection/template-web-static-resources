@@ -40,36 +40,6 @@ jobs:
         a2ensite *.conf
         apachectl restart
 
-    - name: Update repo homepage
-      id: update-homepage
-      env:
-        HOMEPAGE_URL: "https://${{ steps.generate.outputs.name }}.is-dev.applications.ws"
-        REPO_URL: "https://api.github.com/repos/${{ github.repository }}"
-        GH_TOKEN: "${{ github.token }}"
-      run: |
-        echo "Updating homepage to: $HOMEPAGE_URL"
-
-        # Make the API call
-        response=$(curl -s -w "\n%{http_code}" -X PATCH \
-          -H "Authorization: Bearer $GH_TOKEN" \
-          -H "Accept: application/vnd.github.v3+json" \
-          -H "Content-Type: application/json" \
-          -d "{\"homepage\": \"$HOMEPAGE_URL\"}" \
-          "$REPO_URL")
-
-        # Extract status code (last line) and body
-        http_code=$(echo "$response" | tail -n1)
-        body=$(echo "$response" | sed '$d')
-
-        if [ "$http_code" -eq 200 ]; then
-          echo "Successfully updated homepage."
-          echo "homepage=$HOMEPAGE_URL" >> $GITHUB_OUTPUT
-        else
-          echo "Failed to update homepage. HTTP Status: $http_code"
-          echo "Response: $body"
-          exit 1
-        fi
-
 
 
 
