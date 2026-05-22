@@ -1,1 +1,1 @@
-# template-web-static-resources
+Documentation pour testing
