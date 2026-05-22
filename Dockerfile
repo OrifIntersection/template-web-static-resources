@@ -1,5 +1,4 @@
 # --- STAGE 1: BUILD ---
-# change generate-host to use absolute URLs
 FROM node:20-alpine AS builder
 
 WORKDIR /app
