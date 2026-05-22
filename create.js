@@ -80,14 +80,14 @@ console.log(`Creating project: ${projectName}`);
 // Scaffold files
 const initialPackageJson = {
   name: projectName,
-  version: "1.0.0",
+  version: "0.1.0",
   description: projectDesc,
   author: "ORIF Pomy Intersection",
   type: "module",
   main: "index.js",
   scripts: {
-    serve:
-      "esbuild index.js --bundle --outfile=public/build.js --format=esm --watch --serve --servedir=public",
+    dev:
+			"esbuild index.js --bundle --outfile=public/build.js --format=esm --watch --serve --servedir=public",
     build:
       "esbuild index.js --bundle --format=esm --minify --outfile=public/build.js",
   },

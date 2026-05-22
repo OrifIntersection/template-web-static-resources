@@ -1,0 +1,113 @@
+name: Deploy Static Site
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    if: github.event.pull_request.merged == true
+    runs-on: self-hosted
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+
+    - name: Generate new host
+      id: generate
+      run: node ~/scripts/generate-host.js "${{ github.event.repository.name }}"
+
+    - name: Build and run container
+      env:
+        NAME: "${{ steps.generate.outputs.name }}"
+        PORT: "${{ steps.generate.outputs.port }}"
+      run: |
+        docker build -t "${NAME}-image:latest" .
+
+        docker stop "${NAME}-container" 2>/dev/null || true
+        docker rm "${NAME}-container" 2>/dev/null || true
+
+        docker run -d \
+          --name "${NAME}-container" \
+          -p "127.0.0.1:${PORT}:80" \
+          --restart unless-stopped \
+          "${NAME}-image:latest"
+
+    - name: Enable sites and reload Apache
+      run: |
+        a2ensite *.conf
+        apachectl restart
+
+    - name: Update repo homepage
+      id: update-homepage
+      env:
+        HOMEPAGE_URL: "https://${{ steps.generate.outputs.name }}.is-dev.applications.ws"
+        REPO_URL: "https://api.github.com/repos/${{ github.repository }}"
+        GH_TOKEN: "${{ github.token }}"
+      run: |
+        echo "Updating homepage to: $HOMEPAGE_URL"
+
+        # Make the API call
+        response=$(curl -s -w "\n%{http_code}" -X PATCH \
+          -H "Authorization: Bearer $GH_TOKEN" \
+          -H "Accept: application/vnd.github.v3+json" \
+          -H "Content-Type: application/json" \
+          -d "{\"homepage\": \"$HOMEPAGE_URL\"}" \
+          "$REPO_URL")
+
+        # Extract status code (last line) and body
+        http_code=$(echo "$response" | tail -n1)
+        body=$(echo "$response" | sed '$d')
+
+        if [ "$http_code" -eq 200 ]; then
+          echo "Successfully updated homepage."
+          echo "homepage=$HOMEPAGE_URL" >> $GITHUB_OUTPUT
+        else
+          echo "Failed to update homepage. HTTP Status: $http_code"
+          echo "Response: $body"
+          exit 1
+        fi
+
+
+
+
+# these commands are being executed where the repo is being checked out
+# /root/actions-runner/_work/[repo_name]
+# other things I need to do here:
+# create a node script on the server that takes the repo name as an input and returns an unused name + port value
+#
+# repo name? => website name + port
+#
+# for port in $(seq 1024 65535); do
+#     if ! ss -tuln | grep -q ":$port "; then
+#         echo "First available port: $port"
+#         break
+#     fi
+# done
+#
+# the runner itself has node and apache installed.
+# essentially, the runner instance apache receives the request, then relays it to a port via a VirtualHost
+#
+# In order to do this, I need to create a script that writes to an apache .conf file.
+# It just needs to write a generic VirtualHost directive:
+#
+# <VirtualHost *:443>
+#     ServerName {name}.applications.ws
+#     ServerAlias www.{name}.applications.ws
+#
+#			# SSL Config here...
+#
+#     ProxyPreserveHost On
+#
+# 		# Tell the backend what protocol the original client used
+# 		RequestHeader set X-Forwarded-Proto "https"
+# 		RequestHeader set X-Forwarded-Port "443"
+#
+#     ProxyPass / http://127.0.0.1:{port}/
+#     ProxyPassReverse / http://127.0.0.1:{port}/
+# </VirtualHost>
+#
+# I also need a script that will run certbot to provide SSL certificates
+#
